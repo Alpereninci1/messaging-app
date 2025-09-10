@@ -1,66 +1,303 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Insider Assessment - Messaging Application
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Bu proje, belirli bir segmentteki kullanıcılara toplu mesaj göndermek için tasarlanmış otomatik mesaj gönderim sistemidir.
 
-## About Laravel
+## 🚀 Proje Özellikleri
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Laravel 10.x** framework kullanılarak geliştirilmiştir
+- **Repository Pattern** ve **Service Layer** implementasyonu
+- **Queue/Job** yapıları ile asenkron mesaj gönderimi
+- **Redis** cache implementasyonu (33x performans artışı)
+- **Swagger/OpenAPI** dokümantasyonu
+- **RESTful API** standartlarına uygun
+- **Unit ve Integration** testler (%100 test coverage)
+- **Docker** containerization
+- **Response Objects** ile profesyonel API responses
+- **Webhook.site** entegrasyonu
+- **202 Response Code** handling
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📋 Teknik Gereksinimler
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.1+
+- Laravel 10.49.0
+- MySQL 8.0+
+- Redis 7.0+
+- Composer
+- Docker & Docker Compose (önerilen)
+- Predis (Redis client)
 
-## Learning Laravel
+## 🛠️ Kurulum
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Docker ile Kurulum (Önerilen)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. **Repository'yi klonlayın:**
+```bash
+git clone <repository-url>
+cd messaging-application
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2. **Docker servislerini başlatın:**
+```bash
 
-## Laravel Sponsors
+# Sadece Redis başlat
+docker-compose up -d redis
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# Sadece MySQL başlat (Ben laragon kullandım.)
+docker-compose up -d db
+```
 
-### Premium Partners
+3. **Composer bağımlılıklarını yükleyin:**
+```bash
+composer install
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+4. **Environment dosyasını oluşturun:**
+```bash
+cp .env.example .env
+```
 
-## Contributing
+5. **Environment değişkenlerini düzenleyin:**
+```env
+# Database
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=messaging-app
+DB_USERNAME=root
+DB_PASSWORD=
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Redis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_CLIENT=predis
 
-## Code of Conduct
+# Cache & Queue
+CACHE_DRIVER=redis
+QUEUE_CONNECTION=redis
+SESSION_DRIVER=redis
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Webhook Configuration
+INSIDER_WEBHOOK_URL=https://webhook.site/fdb57610-eea0-42cd-ad41-2f73c150461e
+INSIDER_WEBHOOK_AUTH=INS.me1x9uMcyYGlhKKQVPoc.bO3j9aZwRTOcA2Ywo
+```
 
-## Security Vulnerabilities
+6. **Uygulama anahtarını oluşturun:**
+```bash
+php artisan key:generate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+7. **Database migration'larını çalıştırın:**
+```bash
+php artisan migrate:fresh --seed
+```
 
-## License
+8. **Swagger dokümantasyonunu oluşturun:**
+```bash
+php artisan l5-swagger:generate
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+9. **Cache'i temizleyin:**
+```bash
+php artisan optimize:clear
+```
+
+### Manuel Kurulum
+
+1. **Composer bağımlılıklarını yükleyin:**
+```bash
+composer install
+```
+
+2. **Environment dosyasını oluşturun ve düzenleyin:**
+```bash
+cp .env.example .env
+```
+
+3. **Database ve Redis servislerini başlatın**
+
+4. **Migration'ları çalıştırın:**
+```bash
+php artisan migrate:fresh --seed
+php artisan l5-swagger:generate
+php artisan optimize:clear
+```
+
+## 🚀 Kullanım
+
+### 1. Mesaj Gönderimini Başlatma
+
+**Manuel olarak:**
+```bash
+# Mesaj dispatcher'ı başlatın (her 5 saniyede 2 mesaj)
+php artisan messages:dispatch --per-batch=2 --interval=5 --max-batches=1
+
+# Tüm pending mesajları otomatik gönder
+php artisan messages:auto-dispatch --per-batch=2 --interval=5
+
+```
+
+**Otomatik olarak (crontab):**
+```bash
+# Crontab'a ekleyin
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+### 2. API Endpoints
+
+**Gönderilen mesajları listele:**
+```bash
+GET /api/messages/sent
+```
+
+**Response Format:**
+```json
+{
+  "success": true,
+  "message": "Messages retrieved successfully",
+  "data": ["webhook-id1", "webhook-id2", ...],
+  "meta": {
+    "total": 5,
+    "from_database": 3,
+    "from_cache": 2,
+    "cache_ratio": 66.67
+  },
+  "timestamp": "2025-09-09T19:32:37.786252Z"
+}
+```
+
+**Swagger dokümantasyonu:**
+```
+GET /api/documentation
+```
+
+### 3. Test Çalıştırma
+
+```bash
+# Tüm testleri çalıştır (20 test, %100 başarı)
+php artisan test
+
+# Sadece feature testleri
+php artisan test --testsuite=Feature
+
+# Sadece unit testleri
+php artisan test --testsuite=Unit
+
+# Test coverage raporu
+php artisan test --coverage
+```
+
+
+### 4. Redis
+
+```bash
+# hızlı test etme
+php test_redis_simple.php
+
+```
+
+
+## 📁 Proje Yapısı
+
+```
+app/
+├── Console/Commands/          # Artisan komutları
+│   ├── DispatchMessagesCommand.php
+│   ├── AutoDispatchMessagesCommand.php
+│   └── ProcessMessageQueueCommand.php
+├── Http/
+│   ├── Controllers/           # API Controller'ları
+│   │   └── MessageController.php
+│   └── Responses/             # Response Objects
+│       └── MessageResponse.php
+├── Jobs/                      # Queue Job'ları
+│   └── SendMessageJob.php
+├── Models/                    # Eloquent Modelleri
+│   └── Message.php
+├── Repositories/              # Repository Pattern
+│   ├── Contracts/
+│   │   └── MessageRepositoryInterface.php
+│   └── EloquentMessageRepository.php
+├── Services/                  # Business Logic
+│   ├── MessageSenderService.php
+│   └── MessageCacheService.php
+└── Providers/                 # Service Provider'lar
+    └── RepositoryServiceProvider.php
+
+database/
+├── migrations/                # Database migration'ları
+│   ├── create_users_table.php
+│   ├── create_messages_table.php
+│   └── ...
+└── seeders/                   # Test verileri
+    ├── DatabaseSeeder.php
+    └── MessageSeeder.php
+
+tests/
+├── Feature/                   # Integration testleri
+│   ├── MessageControllerTest.php
+│   └── MessageFlowTest.php
+└── Unit/                      # Unit testleri
+    ├── MessageSenderServiceTest.php
+    └── EloquentMessageRepositoryTest.php
+
+docker/
+├── nginx/
+│   └── default.conf
+└── php/
+    └── local.ini
+```
+
+## ✨ Özellikler
+
+### 🚀 Mesaj Gönderim Sistemi
+- Her 5 saniyede 2 mesaj gönderimi
+- Başarısız mesajlar için retry mekanizması
+- Mesaj durumu takibi (pending, sent, failed)
+- External message ID saklama
+- Duplicate mesaj önleme
+- 500 karakter sınırı kontrolü
+- 202 Response Code handling
+
+### ⚡ Cache Sistemi (Bonus)
+- Redis ile mesaj bilgilerinin cache'lenmesi
+- 24 saat cache süresi
+- Message ID ve gönderim zamanı saklama
+- 33x performans artışı
+- Graceful degradation (Redis yoksa çalışmaya devam eder)
+
+### 📚 API Dokümantasyonu
+- Swagger/OpenAPI ile otomatik dokümantasyon
+- `/api/documentation` endpoint'i
+- Interactive API testing
+- Schema definitions
+
+### 🎯 Design Patterns
+- Repository Pattern implementasyonu
+- Service Layer architecture
+- Response Objects ile profesyonel API responses
+- Clean Code principles
+
+### 🐳 Docker Support
+- Multi-container setup (MySQL, Redis, PHP-FPM, Nginx)
+- Production-ready configuration
+- Environment management
+
+## ⚙️ Environment Değişkenleri
+
+| Değişken | Açıklama | Varsayılan |
+|----------|----------|------------|
+| `DB_CONNECTION` | Database driver | mysql |
+| `DB_HOST` | Database host | 127.0.0.1 |
+| `DB_PORT` | Database port | 3306 |
+| `DB_DATABASE` | Database adı | messaging-app |
+| `REDIS_HOST` | Redis host | 127.0.0.1 |
+| `REDIS_PORT` | Redis port | 6379 |
+| `REDIS_CLIENT` | Redis client | predis |
+| `CACHE_DRIVER` | Cache driver | redis |
+| `QUEUE_CONNECTION` | Queue driver | redis |
+| `SESSION_DRIVER` | Session driver | redis |
+| `INSIDER_URL` | Webhook URL | https://webhook.site/... |
+| `INSIDER_AUTH_KEY` | Webhook auth key | INS.me1x9uMcyYGlhKKQVPoc... |
+
+
