@@ -188,15 +188,6 @@ php artisan test --coverage
 ```
 
 
-### 4. Redis
-
-```bash
-# hızlı test etme
-php test_redis_simple.php
-
-```
-
-
 ## 📁 Proje Yapısı
 
 ```
