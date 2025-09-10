@@ -250,7 +250,7 @@ docker/
 - 500 karakter sınırı kontrolü
 - 202 Response Code handling
 
-### ⚡ Cache Sistemi (Bonus)
+### ⚡ Cache Sistemi 
 - Redis ile mesaj bilgilerinin cache'lenmesi
 - 24 saat cache süresi
 - Message ID ve gönderim zamanı saklama
