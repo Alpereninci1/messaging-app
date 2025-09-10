@@ -1,4 +1,4 @@
-# Insider Assessment - Messaging Application
+# Messaging Application
 
 Bu proje, belirli bir segmentteki kullanıcılara toplu mesaj göndermek için tasarlanmış otomatik mesaj gönderim sistemidir.
 
