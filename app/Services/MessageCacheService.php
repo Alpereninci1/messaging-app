@@ -3,27 +3,27 @@
 namespace App\Services;
 
 use App\Models\Message;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Log;
 
 class MessageCacheService
 {
     private const CACHE_PREFIX = 'message:';
-    private const CACHE_TTL = 86400; // 24 hours
+    private const CACHE_TTL = 86400; // 24 saat
 
     public function cacheMessageData(Message $message, string $externalMessageId): void
     {
         $cacheKey = self::CACHE_PREFIX . $message->id;
 
         $cacheData = [
-            'external_message_id' => $externalMessageId,
-            'sent_at' => now()->toISOString(),
-            'message_id' => $message->id,
-            'to' => $message->to,
-            'content' => $message->content,
+            'message_id' => $externalMessageId,
+            'sent_at' => Carbon::now()->toDateTimeString(),
         ];
 
-        // Redis store'u direkt kullan
+        Log::info('Redis cache keys: ' . json_encode($cacheData));
+
         Cache::store('redis')->put($cacheKey, $cacheData, self::CACHE_TTL);
     }
 
@@ -33,9 +33,7 @@ class MessageCacheService
         $cachedIds = [];
 
         try {
-            // Laravel cache'de key'ler hash'leniyor, bu yüzden direkt key'leri arayamıyoruz
-            // Bunun yerine bilinen mesaj ID'lerini kontrol edelim
-            $sentMessages = \App\Models\Message::where('status', 'sent')
+            $sentMessages = Message::where('status', 'sent')
                 ->whereNotNull('external_message_id')
                 ->get();
 
@@ -48,8 +46,7 @@ class MessageCacheService
                 }
             }
         } catch (\Exception $e) {
-            // Hata durumunda sessizce devam et
-            \Log::warning('Redis cache keys error: ' . $e->getMessage());
+            Log::warning('Redis cache keys error: ' . $e->getMessage());
         }
 
         return $cachedIds;

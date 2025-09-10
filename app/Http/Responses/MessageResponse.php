@@ -2,6 +2,7 @@
 
 namespace App\Http\Responses;
 
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -17,7 +18,7 @@ class MessageResponse
             'message' => 'Messages retrieved successfully',
             'data' => $data,
             'meta' => $meta,
-            'timestamp' => now()->toISOString()
+            'timestamp' => Carbon::now()->toDateTimeString()
         ], Response::HTTP_OK);
     }
 
@@ -31,25 +32,10 @@ class MessageResponse
             'message' => $message,
             'data' => null,
             'meta' => null,
-            'timestamp' => now()->toISOString()
+            'timestamp' => Carbon::now()->toDateTimeString()
         ], $statusCode);
     }
 
-    /**
-     * Validation hatası response'u
-     */
-    public static function validationError(array $errors): JsonResponse
-    {
-        return response()->json([
-            'success' => false,
-            'message' => 'Validation failed',
-            'data' => null,
-            'meta' => [
-                'errors' => $errors
-            ],
-            'timestamp' => now()->toISOString()
-        ], Response::HTTP_UNPROCESSABLE_ENTITY);
-    }
 
     /**
      * Boş veri response'u
@@ -65,7 +51,16 @@ class MessageResponse
                 'from_database' => 0,
                 'from_cache' => 0
             ],
-            'timestamp' => now()->toISOString()
+            'timestamp' => Carbon::now()->toDateTimeString()
         ], Response::HTTP_OK);
+    }
+
+    public static function sendResponse($status,$body): array
+    {
+        return [
+            'status' => $status,
+            'body' => $body,
+
+        ];
     }
 }

@@ -6,6 +6,7 @@ use App\Repositories\Contracts\MessageRepositoryInterface;
 use App\Services\MessageCacheService;
 use App\Http\Responses\MessageResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Info(
@@ -69,6 +70,7 @@ class MessageController extends Controller
             $allIds = collect($dbIds)->merge($cachedIds)->unique()->values();
 
             if ($allIds->isEmpty()) {
+                Log::info('No sent messages found in the database or cache.');
                 return MessageResponse::noData();
             }
 
@@ -79,10 +81,11 @@ class MessageController extends Controller
                 'cache_ratio' => $dbIds->count() > 0 ? round((count($cachedIds) / $dbIds->count()) * 100, 2) : 0
             ];
 
-
+            Log::info('Sent messages retrieved successfully: ' . json_encode($meta));
             return MessageResponse::sentMessages($allIds->toArray(), $meta);
 
         } catch (\Exception $e) {
+            Log::error('Error retrieving sent messages: ' . $e->getMessage());
             return MessageResponse::error('Failed to retrieve sent messages: ' . $e->getMessage());
         }
     }

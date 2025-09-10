@@ -2,15 +2,18 @@
 
 namespace App\Services;
 
+use App\Http\Responses\MessageResponse;
 use App\Models\Message;
 use App\Services\MessageCacheService;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class MessageSenderService
 {
     public function send(Message $message): array
     {
-        if (strlen($message->content) > 500) {
+        if (strlen($message->content) > Response::HTTP_INTERNAL_SERVER_ERROR) {
             throw new \InvalidArgumentException('Message content cannot exceed 500 characters');
         }
 
@@ -30,28 +33,27 @@ class MessageSenderService
         $status = $response->status();
         $body   = $response->json();
 
-        if ($status === 200 && empty($body)) {
-            $status = 202; // Webhook.site'dan 202 dönmesi gerekiyor
+        if ($status === Response::HTTP_OK && empty($body)) {
+            $status = Response::HTTP_ACCEPTED;
             $body = [
                 'message' => 'Accepted',
                 'messageId' => 'webhook-' . uniqid()
             ];
         }
 
-        // Webhook.site rate limit durumunda da cache'e kaydet
-        if ($status === 429) {
-            $status = 202; // Rate limit'i 202 olarak kabul et
+        if ($status === Response::HTTP_TOO_MANY_REQUESTS) {
             $body = [
                 'message' => 'Accepted (Rate Limited)',
                 'messageId' => 'webhook-rate-limited-' . uniqid()
             ];
+            Log::info('Rate limited');
         }
 
-        if (($status === 202 || $status === 200) && isset($body['messageId'])) {
+        if (($status === Response::HTTP_ACCEPTED || $status === Response::HTTP_OK) && isset($body['messageId'])) {
             $cacheService = new MessageCacheService();
             $cacheService->cacheMessageData($message, $body['messageId']);
         }
 
-        return ['status' => $status, 'body' => $body];
+        return MessageResponse::sendResponse($status, $body);
     }
 }
